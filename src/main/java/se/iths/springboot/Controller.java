@@ -11,9 +11,8 @@ import java.util.List;
 @RestController
 public class Controller {
 
-    //Dependency injection here to skip all the @override methods
     private UserRepository userRepository;
-
+    //Dependency injection here to skip all the @override methods
     @Autowired
     public Controller(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -32,5 +31,9 @@ public class Controller {
     @GetMapping("/getall")
     public List<User> getAllUsers () {
         return userRepository.findAll();
+    }
+    @GetMapping("/getbyfirstname")
+    public List<User> getUserByFirstName(String firstName) {
+        return userRepository.findAllByFirstName(firstName);
     }
 }

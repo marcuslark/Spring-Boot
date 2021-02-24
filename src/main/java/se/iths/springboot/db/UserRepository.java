@@ -5,7 +5,5 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-
-//    List<User> findAllbyFirstName(String firstName);
-//    List<User> findAllbyLastName(String lastName);
+    List<User> findAllByFirstName(String firstName);
 }
