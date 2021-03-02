@@ -22,10 +22,6 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public List<User> getUserByFirstname(String firstName) {
-        return userRepository.findAllByFirstName(firstName);
-    }
-
     public List<UserDto> getAllUsers(){
         return userMapper.mapp(userRepository.findAll());
     }

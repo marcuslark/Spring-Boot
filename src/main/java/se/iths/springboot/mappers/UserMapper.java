@@ -3,11 +3,11 @@ package se.iths.springboot.mappers;
 import org.springframework.stereotype.Component;
 import se.iths.springboot.db.User;
 import se.iths.springboot.db.UserDto;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+//Mappers to be able to set your own terms(valideringar)
 @Component
 public class UserMapper {
     public UserMapper() {

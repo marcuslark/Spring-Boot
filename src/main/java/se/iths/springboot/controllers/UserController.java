@@ -44,12 +44,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    //Needs to be fixed
-    @GetMapping("/firstname")
-    public List<User> getUserByFirstName(String firstName) {
-        return userService.getUserByFirstname(firstName);
-    }
-
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@RequestBody UserDto user){
