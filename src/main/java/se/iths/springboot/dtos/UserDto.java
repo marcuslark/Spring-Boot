@@ -1,4 +1,4 @@
-package se.iths.springboot.db;
+package se.iths.springboot.dtos;
 
 public class UserDto {
     private int id;

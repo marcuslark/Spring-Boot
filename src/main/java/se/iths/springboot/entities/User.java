@@ -1,8 +1,13 @@
-package se.iths.springboot.db;
+package se.iths.springboot.entities;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name="users")
+@NoArgsConstructor
 public class User {
 
 
@@ -19,9 +24,6 @@ public class User {
         this.lastName = lastName;
     }
 
-    public User() {
-
-    }
     public int getId() {
         return id;
     }

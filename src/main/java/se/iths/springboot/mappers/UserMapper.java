@@ -1,8 +1,8 @@
 package se.iths.springboot.mappers;
 
 import org.springframework.stereotype.Component;
-import se.iths.springboot.db.User;
-import se.iths.springboot.db.UserDto;
+import se.iths.springboot.entities.User;
+import se.iths.springboot.dtos.UserDto;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

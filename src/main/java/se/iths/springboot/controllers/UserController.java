@@ -4,20 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import se.iths.springboot.db.User;
-import se.iths.springboot.db.UserDto;
-import se.iths.springboot.services.UserService;
+import se.iths.springboot.dtos.UserDto;
+import se.iths.springboot.services.Service;
 
 import java.util.List;
 
 @RestController()
 public class UserController {
 
-    private UserService userService;
+    private Service service;
     //Dependency injection here to skip all the @override methods
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(Service service) {
+        this.service = service;
+    }
+
+    @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto create(@RequestBody UserDto user){
+        return service.createUser(user);
     }
 
     // 1.Use Optional here to return either optional of User or return one User.
@@ -29,34 +34,33 @@ public class UserController {
     //        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User with id "+id+" not found.");
     @GetMapping("/users/{id}")
     public UserDto one(@PathVariable int id) {
-        return userService.getOne(id)
+        return service.getOne(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "User with id "+id+" not found."));
     }
 
-    @DeleteMapping("/users/{id}")
-    public void delete(@PathVariable int id){
-        userService.delete(id);
-    }
-
     @GetMapping("/users")
     public List<UserDto> getAllUsers () {
-        return userService.getAllUsers();
+        return service.getAllUsers();
     }
 
-    @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@RequestBody UserDto user){
-       return userService.createUser(user);
+    @GetMapping("/users/search/{firstName}")
+    public List<UserDto> searchFirstName(@PathVariable String firstName){
+        return service.findAllByFirstName(firstName);
     }
 
     @PutMapping("/users/{id}")
     public UserDto replace(@RequestBody UserDto userDto, @PathVariable int id){
-        return userService.replace(id, userDto);
+        return service.replace(id, userDto);
     }
 
     @PatchMapping("/users/{id}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable int id){
-        return userService.update(id, userDto);
+        return service.update(id, userDto);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public void delete(@PathVariable int id){
+        service.delete(id);
     }
 }
