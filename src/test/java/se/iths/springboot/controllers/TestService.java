@@ -9,6 +9,11 @@ import java.util.Optional;
 public class TestService implements Service {
 
     @Override
+    public List<UserDto> searchByFirst(String term) {
+        return null;
+    }
+
+    @Override
     public List<UserDto> findAllByFirstName(String firstName) {
         return null;
     }
@@ -44,4 +49,5 @@ public class TestService implements Service {
     public UserDto update(int id, UserDto userDto) {
         return null;
     }
+
 }

@@ -1,10 +1,13 @@
 package se.iths.springboot.services;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import se.iths.springboot.entities.SearchCriteria;
 import se.iths.springboot.entities.User;
 import se.iths.springboot.dtos.UserDto;
+import se.iths.springboot.entities.UserSpecification;
 import se.iths.springboot.repositories.UserRepository;
 import se.iths.springboot.mappers.UserMapper;
 
@@ -23,6 +26,13 @@ public class UserService implements se.iths.springboot.services.Service {
     }
 
     @Override
+    public List<UserDto> searchByFirst(String term) {
+        UserSpecification us = new UserSpecification(new SearchCriteria("firstName",":",term));
+
+        return userRepository.findAll(Specification.where(us));
+    }
+
+    @Override
     public List<UserDto> findAllByFirstName(String firstName) {
         if(userMapper.mapp(userRepository.findAllByFirstName(firstName)).isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -36,13 +46,16 @@ public class UserService implements se.iths.springboot.services.Service {
 
     @Override
     public Optional<UserDto> getOne(int id) {
-        return userMapper.mapp(userRepository.findById(id));
+        if(userMapper.mapp(userRepository.findById(id)).isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        else
+            return userMapper.mapp(userRepository.findById(id));
     }
 
     @Override
     public UserDto createUser(UserDto user){
-        if(user.getFirstName().isEmpty()) {
-            throw new RuntimeException();
+        if(user.getFirstName().isEmpty() || user.getLastName().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return userMapper.mapp(userRepository.save(userMapper.mapp(user)));
     }
@@ -81,4 +94,5 @@ public class UserService implements se.iths.springboot.services.Service {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Id "+id+" not found.");
     }
+
 }

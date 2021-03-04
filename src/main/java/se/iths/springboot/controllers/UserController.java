@@ -1,5 +1,6 @@
 package se.iths.springboot.controllers;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -9,16 +10,18 @@ import se.iths.springboot.services.Service;
 
 import java.util.List;
 
+@Data
 @RestController()
 public class UserController {
 
-    private Service service;
+    private final Service service;
     //Dependency injection here to skip all the @override methods
     @Autowired
     public UserController(Service service) {
         this.service = service;
     }
 
+    //Fix 409(conflict)
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(@RequestBody UserDto user){
@@ -44,9 +47,14 @@ public class UserController {
         return service.getAllUsers();
     }
 
-    @GetMapping("/users/search/{firstName}")
-    public List<UserDto> searchFirstName(@PathVariable String firstName){
-        return service.findAllByFirstName(firstName);
+    @GetMapping("/users/firstname/{firstname}")
+        public List<UserDto> findAllByFirstName(@PathVariable String firstname){
+        return service.findAllByFirstName(firstname);
+    }
+
+    @RequestMapping(value ="/users/search", method = RequestMethod.GET)
+    public List<UserDto> searchFirstName(@RequestParam(value ="firstName") String search){
+        return service.searchByFirst(search);
     }
 
     @PutMapping("/users/{id}")
