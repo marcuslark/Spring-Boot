@@ -32,7 +32,7 @@ public class TestService implements Service {
 
     @Override
     public UserDto createUser(UserDto user) {
-        return null;
+        return new UserDto(5,"Anna","Ståhlberg");
     }
 
     @Override

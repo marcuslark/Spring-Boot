@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<UserDto> {
-    List<User> findAllByFirstName(String firstName);
+    List<User> findAllByFirstNameContaining(String firstName);
 }

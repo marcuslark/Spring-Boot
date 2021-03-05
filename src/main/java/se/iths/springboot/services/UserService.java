@@ -34,9 +34,9 @@ public class UserService implements se.iths.springboot.services.Service {
 
     @Override
     public List<UserDto> findAllByFirstName(String firstName) {
-        if(userMapper.mapp(userRepository.findAllByFirstName(firstName)).isEmpty())
+        if(userMapper.mapp(userRepository.findAllByFirstNameContaining(firstName)).isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        return userMapper.mapp(userRepository.findAllByFirstName(firstName));
+        return userMapper.mapp(userRepository.findAllByFirstNameContaining(firstName));
     }
 
     @Override
@@ -55,6 +55,7 @@ public class UserService implements se.iths.springboot.services.Service {
     @Override
     public UserDto createUser(UserDto user){
         if(user.getFirstName().isEmpty() || user.getLastName().isEmpty()) {
+            //check firstname!=null
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return userMapper.mapp(userRepository.save(userMapper.mapp(user)));
