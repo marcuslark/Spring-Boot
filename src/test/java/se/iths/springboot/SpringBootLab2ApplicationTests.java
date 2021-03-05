@@ -1,5 +1,7 @@
 package se.iths.springboot;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,44 +29,52 @@ class SpringBootLab2ApplicationTests {
     @Autowired
     TestRestTemplate testClient;
 
+    //Test SEARCH
+    @Test
+    void searchByFirstnameShouldReturn200okAndResultInJson(){
+        addHeaderAndJson();
+        var result = testClient.getForEntity("http://localhost:"+port+"/users/search?firstName=Mar",
+                UserDto[].class);
 
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertTrue(Arrays.stream(result.getBody()).findFirst().get().getFirstName().contains("Marcus"));
+        assertThat(result.getBody().length).isEqualTo(1);
+    }
+    //Test DELETE
+    @Test
+    void deleteByIdShouldReturnNoContent204(){
+        addHeaderAndJson();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
+        var result = testClient
+                .exchange("http://localhost:"+port+"/users/1"
+                ,HttpMethod.DELETE, null, Void.class);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+    }
     //Test invalid UPDATE(PATCH)
     @Test
     void checkIfUpdateFailsToChangeNameAndReturnResponse404NotFound(){
         UserDto updateFirstname = new UserDto(4,"Test","Test");
-
+        //Standard JDK cannot invoke HTTP PATCH, implement components
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(1000);
-        requestFactory.setReadTimeout(1000);
         testClient.getRestTemplate().setRequestFactory(requestFactory);
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
+        addHeaderAndJson();
 
         HttpEntity<UserDto> request = new HttpEntity<>(updateFirstname);
         ResponseEntity<UserDto> response = testClient.exchange("http://localhost:"+port+"/users/4", HttpMethod.PATCH, request, UserDto.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-
-
     //Test UPDATE(PATCH)
     @Test
     void checkIfUpdateChangesNameAndReturnsResponse200AndUserAsJson(){
         UserDto user = new UserDto(1,"TestFirstname","TestLastname");
-
         //Standard JDK cannot invoke HTTP PATCH, implement components
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(1000);
-        requestFactory.setReadTimeout(1000);
-
         testClient.getRestTemplate().setRequestFactory(requestFactory);
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
+        addHeaderAndJson();
 
         HttpEntity<UserDto> request = new HttpEntity<>(user);
         ResponseEntity<UserDto> response = testClient.exchange("http://localhost:"+port+"/users/1",
@@ -78,27 +88,18 @@ class SpringBootLab2ApplicationTests {
     @Test
     void checkIfReplaceReturns404NotFound(){
         UserDto user = new UserDto(1,"Test","Test");
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
-
+        addHeaderAndJson();
         HttpEntity<UserDto> request = new HttpEntity<>(user);
         ResponseEntity<UserDto> response = testClient.exchange("http://localhost:"+port+"/users/4",
                 HttpMethod.PUT, request, UserDto.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-
     //Test REPLACE(PUT)
     @Test
     void checkIfReplaceReturnsStatus200andReturnsUserAsJson(){
         UserDto user = new UserDto(1,"Test","Test");
-
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
-
+        addHeaderAndJson();
         HttpEntity<UserDto> request = new HttpEntity<>(user);
         ResponseEntity<UserDto> response = testClient.exchange("http://localhost:"+port+"/users/1",
                 HttpMethod.PUT, request, UserDto.class);
@@ -106,76 +107,66 @@ class SpringBootLab2ApplicationTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertThat(response.getBody().getFirstName()).isEqualTo(user.getFirstName());
     }
-
     //Test invalid CREATE
     @Test
     void checkIfInvalidPostRequestCreateReturnsError400(){
-        UserDto userDto = new UserDto(0,null,"Lärk");
+        UserDto invalidDto = new UserDto(0,null,"Lärk");
+        addHeaderAndJson();
+        ResponseEntity<UserDto> result = testClient.postForEntity("http://localhost:"+port+"/users/", invalidDto, UserDto.class);
 
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
-
-        ResponseEntity<UserDto> responseEntity = testClient
-                .postForEntity("http://localhost:"+port+"/users",
-                 userDto, UserDto.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
-
     //Test CREATE
     @Test
     void checkIfPostReturns201CreatedAndCreatesUserWithJson(){
         UserDto userDto = new UserDto(4,"Test","Test");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept","application.xml");
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
+        addHeaderAndJson();
         HttpEntity<UserDto> demand = new HttpEntity<UserDto>(userDto);
-        ResponseEntity<UserDto> response = testClient
-                .postForEntity("http://localhost:"+port+"/users",
-                 userDto, UserDto.class);
+        ResponseEntity<UserDto> response = testClient.postForEntity("http://localhost:"+port+"/users", userDto, UserDto.class);
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody().getFirstName()).isEqualTo(userDto.getLastName());
         assertThat(response.getBody().getLastName()).isEqualTo(userDto.getLastName());
     }
-
     //Test mapping-response functionality and GET all users
     @Test
     void checkIfUrlIsMappingTowardsUsersInDatabaseAndCheckIfGetAllUsersReturnsArrayOfUsers() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept","application.xml");
-        var result = testClient.getForEntity("http://localhost:"+port+"/users/", UserDto[].class);
+        addHeaderAndJson();
+        var result = getResultArray("");
+
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertTrue(result.hasBody());
         assertThat(result.getBody().length).isGreaterThan(0);
         assertThat(result.getBody().length).isEqualTo(3);
-        System.out.println("TEST-Firstname "+ Arrays.stream(result.getBody()).findFirst().get().getFirstName());
-        System.out.println("TEST-Lastname "+Arrays.stream(result.getBody()).findFirst().get().getLastName());
     }
-
     //Test invalid GET by id
     @Test
     void testGetByIdReturns404IfNotFound() {
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept", "application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
-
-        var result = testClient.getForEntity("http://localhost:"+port+"/users/4", UserDto.class);
+        addHeaderAndJson();
+        var result = getResult("4");
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
-
     //Test GET one by id
     @Test
     void checkIfGetByIdReturnsUserAsJson(){
-        HttpHeaders header = new HttpHeaders();
-        header.add("Accept","application.xml");
-        header.setContentType(MediaType.APPLICATION_JSON);
-
-        var result = testClient.getForEntity("http://localhost:"+port+"/users/1", UserDto.class);
-        System.out.println("Result: "+result.getBody().getFirstName());
-        System.out.println(result.getBody().getLastName());
+        addHeaderAndJson();
+        var result = getResult("1");
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody().getLastName()).isEqualTo("Lärk");
     }
 
+    //Methods to use TestRestTemplate, responseEntity and to add HeadersAndJson, cleans up the code
+    public ResponseEntity<UserDto> getResult(String id){
+        ResponseEntity<UserDto> result = testClient.getForEntity("http://localhost:"+port+"/users/"+id, UserDto.class);
+        return result;
+    }
+    public ResponseEntity<UserDto[]> getResultArray(String id){
+        ResponseEntity<UserDto[]> result = testClient.getForEntity("http://localhost:"+port+"/users/"+id, UserDto[].class);
+        return result;
+    }
+    public void addHeaderAndJson(){
+        HttpHeaders header = new HttpHeaders();
+        header.add("Accept","application.xml");
+        header.setContentType(MediaType.APPLICATION_JSON);
+    }
 }
