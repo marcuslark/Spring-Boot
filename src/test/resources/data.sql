@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name varchar(255) not null,
+    first_name varchar(255),
     last_name varchar(255) not null
 );
 

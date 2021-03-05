@@ -4,6 +4,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import se.iths.springboot.dtos.FirstnameDto;
+import se.iths.springboot.dtos.LastnameDto;
 import se.iths.springboot.entities.SearchCriteria;
 import se.iths.springboot.entities.User;
 import se.iths.springboot.dtos.UserDto;
@@ -26,8 +28,15 @@ public class UserService implements se.iths.springboot.services.Service {
     }
 
     @Override
-    public List<UserDto> searchByFirst(String term) {
+    public List<UserDto> searchByFirstname(String term) {
         UserSpecification us = new UserSpecification(new SearchCriteria("firstName",":",term));
+
+        return userRepository.findAll(Specification.where(us));
+    }
+
+    @Override
+    public List<UserDto> searchByLastname(String term) {
+        UserSpecification us = new UserSpecification(new SearchCriteria("lastName",":",term));
 
         return userRepository.findAll(Specification.where(us));
     }
@@ -54,8 +63,7 @@ public class UserService implements se.iths.springboot.services.Service {
 
     @Override
     public UserDto createUser(UserDto user){
-        if(user.getFirstName().isEmpty() || user.getLastName().isEmpty()) {
-            //check firstname!=null
+        if(user.getFirstName() == null || user.getLastName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return userMapper.mapp(userRepository.save(userMapper.mapp(user)));
@@ -81,14 +89,26 @@ public class UserService implements se.iths.springboot.services.Service {
     }
 
     @Override
-    public UserDto update(int id, UserDto userDto) {
+    public UserDto updateLastname(int id, LastnameDto userDto) {
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             User updatedUser = user.get();
-            if(userDto.getFirstName() != null)
-                updatedUser.setFirstName(userDto.getFirstName());
-            if(userDto.getLastName() != null)
-                updatedUser.setLastName(userDto.getLastName());
+            if(userDto.lastName != null)
+                updatedUser.setLastName(userDto.lastName);
+            return userMapper.mapp(userRepository.save(updatedUser));
+        }
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Id "+id+" not found.");
+    }
+
+    @Override
+    public UserDto updateFirstname(int id, FirstnameDto firstnameDto) {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()){
+            User updatedUser = user.get();
+            if(firstnameDto.firstName != null)
+                updatedUser.setFirstName(firstnameDto.firstName);
             return userMapper.mapp(userRepository.save(updatedUser));
         }
         else

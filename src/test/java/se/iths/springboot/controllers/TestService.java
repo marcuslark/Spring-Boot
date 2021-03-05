@@ -1,5 +1,7 @@
 package se.iths.springboot.controllers;
 
+import se.iths.springboot.dtos.FirstnameDto;
+import se.iths.springboot.dtos.LastnameDto;
 import se.iths.springboot.dtos.UserDto;
 import se.iths.springboot.services.Service;
 
@@ -9,7 +11,12 @@ import java.util.Optional;
 public class TestService implements Service {
 
     @Override
-    public List<UserDto> searchByFirst(String term) {
+    public List<UserDto> searchByFirstname(String term) {
+        return null;
+    }
+
+    @Override
+    public List<UserDto> searchByLastname(String term) {
         return null;
     }
 
@@ -46,8 +53,12 @@ public class TestService implements Service {
     }
 
     @Override
-    public UserDto update(int id, UserDto userDto) {
+    public UserDto updateFirstname(int id, FirstnameDto firstnameDto) {
         return null;
     }
 
+    @Override
+    public UserDto updateLastname(int id, LastnameDto lastnameDto) {
+        return null;
+    }
 }

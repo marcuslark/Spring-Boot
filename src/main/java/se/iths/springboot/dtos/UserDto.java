@@ -1,5 +1,9 @@
 package se.iths.springboot.dtos;
 
+import lombok.*;
+
+@Data
+@NoArgsConstructor
 public class UserDto {
     private int id;
     private String firstName;

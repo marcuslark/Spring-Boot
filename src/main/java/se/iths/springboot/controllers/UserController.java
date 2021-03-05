@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import se.iths.springboot.dtos.FirstnameDto;
 import se.iths.springboot.dtos.UserDto;
 import se.iths.springboot.services.Service;
 
@@ -54,7 +55,7 @@ public class UserController {
 
     @RequestMapping(value ="/users/search", method = RequestMethod.GET)
     public List<UserDto> searchFirstName(@RequestParam(value ="firstName") String search){
-        return service.searchByFirst(search);
+        return service.searchByFirstname(search);
     }
 
     @PutMapping("/users/{id}")
@@ -63,8 +64,8 @@ public class UserController {
     }
 
     @PatchMapping("/users/{id}")
-    public UserDto update(@RequestBody UserDto userDto, @PathVariable int id){
-        return service.update(id, userDto);
+    public UserDto updateFirstname(@RequestBody FirstnameDto firstnameDto, @PathVariable int id){
+        return service.updateFirstname(id, firstnameDto);
     }
 
     @DeleteMapping("/users/{id}")
