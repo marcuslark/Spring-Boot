@@ -76,10 +76,6 @@ public class UserService implements se.iths.springboot.services.Service {
     @Override
     public UserDto replace(int id, UserDto userDto) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,
-                    "No content available!!");
-        }
         if(user.isPresent()){
             User updatedUser = user.get();
             updatedUser.setFirstName(userDto.getFirstName());
@@ -94,10 +90,6 @@ public class UserService implements se.iths.springboot.services.Service {
     @Override
     public UserDto updateLastname(int id, LastnameDto userDto) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,
-                    "No content available!!");
-        }
         if(user.isPresent()){
             User updatedUser = user.get();
             if(userDto.lastName != null)
@@ -111,10 +103,6 @@ public class UserService implements se.iths.springboot.services.Service {
     @Override
     public UserDto updateFirstname(int id, FirstnameDto firstnameDto) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT,
-                    "No content available!!");
-        }
         if(user.isPresent()){
             User updatedUser = user.get();
             if(firstnameDto.firstName != null)

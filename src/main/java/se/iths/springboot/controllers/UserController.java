@@ -54,7 +54,6 @@ public class UserController {
     public UserDto replace(@RequestBody UserDto userDto, @PathVariable int id){
         return service.replace(id, userDto);
     }
-
     @PatchMapping("/users/{id}")
     public UserDto updateFirstname(@RequestBody FirstnameDto firstnameDto, @PathVariable int id){
         return service.updateFirstname(id, firstnameDto);

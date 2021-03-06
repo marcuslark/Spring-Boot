@@ -78,7 +78,7 @@ class SpringBootLab2ApplicationTests {
     }
     //Test invalid UPDATE(PATCH)
     @Test
-    void checkIfUpdateFailsToChangeNameAndReturnResponse204NoContent(){
+    void checkIfUpdateFailsToChangeNameAndReturnResponse404NotFound(){
         UserDto updateFirstname = new UserDto(4,"Test","Test");
         //Standard JDK cannot invoke HTTP PATCH, implement components
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -88,7 +88,7 @@ class SpringBootLab2ApplicationTests {
         HttpEntity<UserDto> request = new HttpEntity<>(updateFirstname);
         ResponseEntity<UserDto> response = testClient.exchange("http://localhost:"+port+"/users/4", HttpMethod.PATCH, request, UserDto.class);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
     //Test UPDATE(PATCH)
     @Test
@@ -109,14 +109,14 @@ class SpringBootLab2ApplicationTests {
     }
     //Test invalid REPLACE(PUT)
     @Test
-    void checkIfReplaceReturns204NoContent(){
+    void checkIfReplaceReturns404NotFound(){
         UserDto user = new UserDto(4,"Test","Test");
         addHeaderAndJson();
         HttpEntity<UserDto> request = new HttpEntity<>(user);
         ResponseEntity<UserDto> response = this.testClient.exchange("http://localhost:"+port+"/users/4",
                 HttpMethod.PUT, request, UserDto.class);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
     //Test REPLACE(PUT)
     @Test
