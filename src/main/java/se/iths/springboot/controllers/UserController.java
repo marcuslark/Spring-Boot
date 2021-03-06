@@ -50,12 +50,11 @@ public class UserController {
         return service.searchByFirstname(search);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/users/{id}")
     public UserDto replace(@RequestBody UserDto userDto, @PathVariable int id){
         return service.replace(id, userDto);
     }
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
     @PatchMapping("/users/{id}")
     public UserDto updateFirstname(@RequestBody FirstnameDto firstnameDto, @PathVariable int id){
         return service.updateFirstname(id, firstnameDto);
