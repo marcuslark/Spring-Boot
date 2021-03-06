@@ -26,54 +26,53 @@ public class UserService implements se.iths.springboot.services.Service {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
     }
-
+    //SEARCH methods
     @Override
     public List<UserDto> searchByFirstname(String term) {
         UserSpecification us = new UserSpecification(new SearchCriteria("firstName",":",term));
 
         return userRepository.findAll(Specification.where(us));
     }
-
     @Override
     public List<UserDto> searchByLastname(String term) {
         UserSpecification us = new UserSpecification(new SearchCriteria("lastName",":",term));
 
         return userRepository.findAll(Specification.where(us));
     }
-
+    //Read GET methods
     @Override
     public List<UserDto> findAllByFirstName(String firstName) {
-        if(userMapper.mapp(userRepository.findAllByFirstNameContaining(firstName)).isEmpty())
+        if(userMapper.map(userRepository.findAllByFirstNameContaining(firstName)).isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        return userMapper.mapp(userRepository.findAllByFirstNameContaining(firstName));
+        return userMapper.map(userRepository.findAllByFirstNameContaining(firstName));
     }
-
     @Override
     public List<UserDto> getAllUsers(){
-        return userMapper.mapp(userRepository.findAll());
+        return userMapper.map(userRepository.findAll());
     }
-
     @Override
     public Optional<UserDto> getOne(int id) {
-        if(userMapper.mapp(userRepository.findById(id)).isEmpty())
+        if(userMapper.map(userRepository.findById(id)).isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         else
-            return userMapper.mapp(userRepository.findById(id));
+            return userMapper.map(userRepository.findById(id));
     }
-
+    //Create POST methods
     @Override
     public UserDto createUser(UserDto user){
         if(user.getFirstName() == null || user.getLastName() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        return userMapper.mapp(userRepository.save(userMapper.mapp(user)));
+        return userMapper.map(userRepository.save(userMapper.map(user)));
     }
-
+    //DELETE method
     @Override
     public void delete(int id) {
+        if(!userRepository.existsById(id))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         userRepository.deleteById(id);
     }
-
+    //Update PUT method
     @Override
     public UserDto replace(int id, UserDto userDto) {
         Optional<User> user = userRepository.findById(id);
@@ -81,13 +80,13 @@ public class UserService implements se.iths.springboot.services.Service {
             User updatedUser = user.get();
             updatedUser.setFirstName(userDto.getFirstName());
             updatedUser.setLastName(userDto.getLastName());
-            return userMapper.mapp(userRepository.save(updatedUser));
+            return userMapper.map(userRepository.save(updatedUser));
         }
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Id "+id+" not found.");
     }
-
+    //Update PATCH methods
     @Override
     public UserDto updateLastname(int id, LastnameDto userDto) {
         Optional<User> user = userRepository.findById(id);
@@ -95,13 +94,12 @@ public class UserService implements se.iths.springboot.services.Service {
             User updatedUser = user.get();
             if(userDto.lastName != null)
                 updatedUser.setLastName(userDto.lastName);
-            return userMapper.mapp(userRepository.save(updatedUser));
+            return userMapper.map(userRepository.save(updatedUser));
         }
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Id "+id+" not found.");
     }
-
     @Override
     public UserDto updateFirstname(int id, FirstnameDto firstnameDto) {
         Optional<User> user = userRepository.findById(id);
@@ -109,7 +107,7 @@ public class UserService implements se.iths.springboot.services.Service {
             User updatedUser = user.get();
             if(firstnameDto.firstName != null)
                 updatedUser.setFirstName(firstnameDto.firstName);
-            return userMapper.mapp(userRepository.save(updatedUser));
+            return userMapper.map(userRepository.save(updatedUser));
         }
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

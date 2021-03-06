@@ -7,38 +7,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//Mappers to be able to set your own terms(valideringar).
+//Mappers to be able to be able to validate however you want.
 @Component
 public class UserMapper {
     public UserMapper() {
     }
 
-    public List<UserDto> mapp(List<User> all) {
+    public List<UserDto> map(List<User> all) {
         return all
                 .stream()
-                .map(this::mapp)
+                .map(this::map)
                 .collect(Collectors.toList());
-//  In modern Java we use this stream method instead^
-
-//        List<UserDto> userDtoList = new ArrayList<>();
-//        for (var user: all) {
-//            userDtoList.add(mapp(user));
-//        }
-//        return userDtoList;
     }
 
-    public UserDto mapp(User user) {
+    public UserDto map(User user) {
         return new UserDto(user.getId(), user.getFirstName(), user.getLastName());
     }
 
-    public User mapp(UserDto userDto) {
+    public User map(UserDto userDto) {
         return new User(userDto.getId(), userDto.getFirstName(), userDto.getLastName());
     }
 
-    public Optional<UserDto> mapp(Optional<User> optionalUser) {
+    public Optional<UserDto> map(Optional<User> optionalUser) {
         if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(mapp(optionalUser.get()));
+        return Optional.of(map(optionalUser.get()));
     }
 }

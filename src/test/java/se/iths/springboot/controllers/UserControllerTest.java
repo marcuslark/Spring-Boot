@@ -25,7 +25,6 @@ public class UserControllerTest {
 
 
     }
-
     @Test
     void callingOneWithInvalidIdThrows404Exception(){
         UserController userController = new UserController(new TestService());

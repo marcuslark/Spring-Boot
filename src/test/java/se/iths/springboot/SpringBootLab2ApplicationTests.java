@@ -29,29 +29,52 @@ class SpringBootLab2ApplicationTests {
     @Autowired
     TestRestTemplate testClient;
 
-    //Test SEARCH
+    //Test invalid CREATE
     @Test
-    void searchByFirstnameShouldReturn200okAndResultInJson(){
+    void checkIfInvalidPostRequestCreateReturnsError400(){
+        UserDto invalidDto = new UserDto(0,null,"Lärk");
         addHeaderAndJson();
-        var result = testClient.getForEntity("http://localhost:"+port+"/users/search?firstName=Mar",
-                UserDto[].class);
+        ResponseEntity<UserDto> result = testClient.postForEntity("http://localhost:"+port+"/users/", invalidDto, UserDto.class);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+    //Test CREATE
+    @Test
+    void checkIfPostReturns201CreatedAndCreatesUserWithJson(){
+        UserDto userDto = new UserDto(4,"Test","Test");
+        addHeaderAndJson();
+        HttpEntity<UserDto> demand = new HttpEntity<UserDto>(userDto);
+        ResponseEntity<UserDto> response = testClient.postForEntity("http://localhost:"+port+"/users", userDto, UserDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().getFirstName()).isEqualTo(userDto.getLastName());
+        assertThat(response.getBody().getLastName()).isEqualTo(userDto.getLastName());
+    }
+    //Test mapping-response functionality and GET all users
+    @Test
+    void checkIfUrlIsMappingTowardsUsersInDatabaseAndCheckIfGetAllUsersReturnsArrayOfUsers() {
+        addHeaderAndJson();
+        var result = getResultArray("");
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertTrue(Arrays.stream(result.getBody()).findFirst().get().getFirstName().contains("Marcus"));
-        assertThat(result.getBody().length).isEqualTo(1);
+        assertTrue(result.hasBody());
+        assertThat(result.getBody().length).isGreaterThan(0);
+        assertThat(result.getBody().length).isEqualTo(3);
     }
-    //Test DELETE
+    //Test invalid GET by id
     @Test
-    void deleteByIdShouldReturnNoContent204(){
+    void testGetByIdReturns404IfNotFound() {
         addHeaderAndJson();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
-        var result = testClient
-                .exchange("http://localhost:"+port+"/users/1"
-                ,HttpMethod.DELETE, null, Void.class);
-
-        assertEquals(HttpStatus.OK, result.getStatusCode());
+        var result = getResult("4");
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+    //Test GET one by id
+    @Test
+    void checkIfGetByIdReturnsUserAsJson(){
+        addHeaderAndJson();
+        var result = getResult("1");
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody().getLastName()).isEqualTo("Lärk");
     }
     //Test invalid UPDATE(PATCH)
     @Test
@@ -107,52 +130,29 @@ class SpringBootLab2ApplicationTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertThat(response.getBody().getFirstName()).isEqualTo(user.getFirstName());
     }
-    //Test invalid CREATE
+    //Test SEARCH
     @Test
-    void checkIfInvalidPostRequestCreateReturnsError400(){
-        UserDto invalidDto = new UserDto(0,null,"Lärk");
+    void searchByFirstnameShouldReturn200okAndResultInJson(){
         addHeaderAndJson();
-        ResponseEntity<UserDto> result = testClient.postForEntity("http://localhost:"+port+"/users/", invalidDto, UserDto.class);
-
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-    //Test CREATE
-    @Test
-    void checkIfPostReturns201CreatedAndCreatesUserWithJson(){
-        UserDto userDto = new UserDto(4,"Test","Test");
-        addHeaderAndJson();
-        HttpEntity<UserDto> demand = new HttpEntity<UserDto>(userDto);
-        ResponseEntity<UserDto> response = testClient.postForEntity("http://localhost:"+port+"/users", userDto, UserDto.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().getFirstName()).isEqualTo(userDto.getLastName());
-        assertThat(response.getBody().getLastName()).isEqualTo(userDto.getLastName());
-    }
-    //Test mapping-response functionality and GET all users
-    @Test
-    void checkIfUrlIsMappingTowardsUsersInDatabaseAndCheckIfGetAllUsersReturnsArrayOfUsers() {
-        addHeaderAndJson();
-        var result = getResultArray("");
+        var result = testClient.getForEntity("http://localhost:"+port+"/users/search?firstName=Mar",
+                UserDto[].class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertTrue(result.hasBody());
-        assertThat(result.getBody().length).isGreaterThan(0);
-        assertThat(result.getBody().length).isEqualTo(3);
+        assertTrue(Arrays.stream(result.getBody()).findFirst().get().getFirstName().contains("Marcus"));
+        assertThat(result.getBody().length).isEqualTo(1);
     }
-    //Test invalid GET by id
+    //Test DELETE
     @Test
-    void testGetByIdReturns404IfNotFound() {
+    void deleteByIdShouldReturnNoContent204(){
         addHeaderAndJson();
-        var result = getResult("4");
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-    //Test GET one by id
-    @Test
-    void checkIfGetByIdReturnsUserAsJson(){
-        addHeaderAndJson();
-        var result = getResult("1");
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(result.getBody().getLastName()).isEqualTo("Lärk");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        var result = testClient
+                .exchange("http://localhost:"+port+"/users/1"
+                ,HttpMethod.DELETE, null, Void.class);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
     }
 
     //Methods to use TestRestTemplate, responseEntity and to add HeadersAndJson, cleans up the code
